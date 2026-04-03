@@ -7,5 +7,5 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Check if Supabase is configured
 export const isSupabaseConfigured = () => {
-  return !!(supabaseUrl && supabaseAnonKey)
+  return !!(supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('https://'))
 }
