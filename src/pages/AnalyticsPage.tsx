@@ -1,14 +1,16 @@
+import { useState } from 'react'
 import { useAnalytics } from '../hooks/useAnalytics'
 import { Analytics } from '../components/analytics/Analytics'
 
 export function AnalyticsPage() {
+  const [referenceDate] = useState(new Date())
   const {
     globalAnalytics,
     weeklyProductivity,
     employeePerformance,
     isLoading,
     refresh
-  } = useAnalytics(new Date())
+  } = useAnalytics(referenceDate)
 
   return (
     <div className="analytics-page">
