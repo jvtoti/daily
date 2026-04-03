@@ -14,6 +14,17 @@ export function Analytics({
   employeePerformance,
   isLoading
 }: AnalyticsProps) {
+  // Ensure we always have default values
+  const metrics = globalAnalytics || {
+    totalTasks: 0,
+    completedTasks: 0,
+    pendingTasks: 0,
+    activeMembers: 0,
+    averageProductivity: 0
+  }
+  const weekly = weeklyProductivity || []
+  const performance = employeePerformance || []
+
   if (isLoading) {
     return (
       <div className="analytics-container">
@@ -32,27 +43,27 @@ export function Analytics({
         <div className="metrics-grid">
           <MetricCard
             title="Total de Tarefas"
-            value={globalAnalytics?.totalTasks || 0}
+            value={metrics.totalTasks}
             icon="📋"
           />
           <MetricCard
             title="Concluídas"
-            value={globalAnalytics?.completedTasks || 0}
+            value={metrics.completedTasks}
             icon="✅"
           />
           <MetricCard
             title="Pendentes"
-            value={globalAnalytics?.pendingTasks || 0}
+            value={metrics.pendingTasks}
             icon="⏳"
           />
           <MetricCard
             title="Membros Ativos"
-            value={globalAnalytics?.activeMembers || 0}
+            value={metrics.activeMembers}
             icon="👥"
           />
           <MetricCard
             title="Produtividade Média"
-            value={`${(globalAnalytics?.averageProductivity || 0).toFixed(1)}%`}
+            value={`${metrics.averageProductivity.toFixed(1)}%`}
             icon="📊"
             highlight
           />
@@ -63,7 +74,7 @@ export function Analytics({
       <section className="analytics-section">
         <h2 className="section-title">Produtividade Semanal</h2>
         <div className="weekly-chart">
-          {weeklyProductivity && weeklyProductivity.length > 0 ? weeklyProductivity.map((point, index) => (
+          {weekly.length > 0 ? weekly.map((point) => (
             <div key={point.date} className="chart-bar-container">
               <div className="chart-bar">
                 <div
@@ -94,7 +105,7 @@ export function Analytics({
       {/* Employee Performance */}
       <section className="analytics-section">
         <h2 className="section-title">Desempenho por Funcionário</h2>
-        {employeePerformance.length === 0 ? (
+        {performance.length === 0 ? (
           <div className="empty-state">
             <p>Nenhum dado de desempenho disponível</p>
           </div>
@@ -113,7 +124,7 @@ export function Analytics({
                 </tr>
               </thead>
               <tbody>
-                {employeePerformance.map(emp => (
+                {performance.map(emp => (
                   <tr key={emp.employeeId}>
                     <td className="employee-name-cell">{emp.name}</td>
                     <td className="employee-role-cell">{emp.role}</td>
