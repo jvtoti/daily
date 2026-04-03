@@ -20,18 +20,28 @@ export function useAnalytics(referenceDate: Date = new Date()) {
   const loadData = async () => {
     setIsLoading(true)
 
-    const allReports = await getReports()
-    const allEmployees = await getEmployees()
+    try {
+      const allReports = await getReports()
+      const allEmployees = await getEmployees()
 
-    setReports(allReports)
-    setEmployees(allEmployees)
+      setReports(allReports || [])
+      setEmployees(allEmployees || [])
 
-    setGlobalAnalytics(getGlobalAnalytics(allReports, allEmployees))
-    setWeeklyProductivity(getWeeklyProductivity(allReports, referenceDate))
-    setEmployeePerformance(getEmployeePerformance(allReports, allEmployees))
-    setStatusDistribution(getStatusDistribution(allReports))
-
-    setIsLoading(false)
+      setGlobalAnalytics(getGlobalAnalytics(allReports || [], allEmployees || []))
+      setWeeklyProductivity(getWeeklyProductivity(allReports || [], referenceDate))
+      setEmployeePerformance(getEmployeePerformance(allReports || [], allEmployees || []))
+      setStatusDistribution(getStatusDistribution(allReports || []))
+    } catch (error) {
+      console.error('Error loading analytics data:', error)
+      setReports([])
+      setEmployees([])
+      setGlobalAnalytics(null)
+      setWeeklyProductivity([])
+      setEmployeePerformance([])
+      setStatusDistribution(null)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const refresh = () => {
