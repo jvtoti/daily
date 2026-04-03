@@ -22,39 +22,48 @@ function setLocalStorageReports(reports: DailyReport[]): void {
 // ============================================
 
 async function getSupabaseReports(): Promise<DailyReport[]> {
-  const { data, error } = await supabase
-    .from('reports')
-    .select(`
-      *,
-      tasks (
-        id,
-        text,
-        completed,
-        created_at,
-        updated_at
-      )
-    `)
-    .order('date', { ascending: false })
+  try {
+    const { data, error } = await supabase
+      .from('reports')
+      .select(`
+        *,
+        tasks (
+          id,
+          text,
+          completed,
+          created_at,
+          updated_at
+        )
+      `)
+      .order('date', { ascending: false })
 
-  if (error) {
-    console.error('Error fetching reports from Supabase:', error)
+    if (error) {
+      console.error('Error fetching reports from Supabase:', error)
+      return []
+    }
+
+    if (!data) {
+      return []
+    }
+
+    return data.map(report => ({
+      id: report.id,
+      employeeId: report.employee_id,
+      date: report.date,
+      createdAt: report.created_at,
+      updatedAt: report.updated_at,
+      tasks: (report.tasks || []).map((task: any) => ({
+        id: task.id,
+        text: task.text,
+        completed: task.completed,
+        createdAt: task.created_at,
+        updatedAt: task.updated_at
+      }))
+    }))
+  } catch (error) {
+    console.error('Unexpected error fetching reports from Supabase:', error)
     return []
   }
-
-  return (data || []).map(report => ({
-    id: report.id,
-    employeeId: report.employee_id,
-    date: report.date,
-    createdAt: report.created_at,
-    updatedAt: report.updated_at,
-    tasks: (report.tasks || []).map(task => ({
-      id: task.id,
-      text: task.text,
-      completed: task.completed,
-      createdAt: task.created_at,
-      updatedAt: task.updated_at
-    }))
-  }))
 }
 
 async function getSupabaseReportByEmployeeAndDate(
