@@ -21,23 +21,32 @@ function setLocalStorageEmployees(employees: Employee[]): void {
 // ============================================
 
 async function getSupabaseEmployees(): Promise<Employee[]> {
-  const { data, error } = await supabase
-    .from('employees')
-    .select('*')
-    .order('created_at', { ascending: false })
+  try {
+    const { data, error } = await supabase
+      .from('employees')
+      .select('*')
+      .order('created_at', { ascending: false })
 
-  if (error) {
-    console.error('Error fetching employees from Supabase:', error)
+    if (error) {
+      console.error('Error fetching employees from Supabase:', error)
+      return []
+    }
+
+    if (!data) {
+      return []
+    }
+
+    return data.map((emp: any) => ({
+      id: emp.id,
+      name: emp.name,
+      role: emp.role,
+      avatar: emp.avatar,
+      createdAt: emp.created_at
+    }))
+  } catch (error) {
+    console.error('Unexpected error fetching employees from Supabase:', error)
     return []
   }
-
-  return (data || []).map(emp => ({
-    id: emp.id,
-    name: emp.name,
-    role: emp.role,
-    avatar: emp.avatar,
-    createdAt: emp.created_at
-  }))
 }
 
 async function createSupabaseEmployee(name: string, role: string, avatar?: string): Promise<Employee> {
