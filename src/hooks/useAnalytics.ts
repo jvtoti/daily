@@ -24,21 +24,35 @@ export function useAnalytics(referenceDate: Date = new Date()) {
       const allReports = await getReports()
       const allEmployees = await getEmployees()
 
-      setReports(allReports || [])
-      setEmployees(allEmployees || [])
+      const reports = Array.isArray(allReports) ? allReports : []
+      const employees = Array.isArray(allEmployees) ? allEmployees : []
 
-      setGlobalAnalytics(getGlobalAnalytics(allReports || [], allEmployees || []))
-      setWeeklyProductivity(getWeeklyProductivity(allReports || [], referenceDate))
-      setEmployeePerformance(getEmployeePerformance(allReports || [], allEmployees || []))
-      setStatusDistribution(getStatusDistribution(allReports || []))
+      setReports(reports)
+      setEmployees(employees)
+
+      const analytics = getGlobalAnalytics(reports, employees)
+      const weekly = getWeeklyProductivity(reports, referenceDate)
+      const performance = getEmployeePerformance(reports, employees)
+      const distribution = getStatusDistribution(reports)
+
+      setGlobalAnalytics(analytics)
+      setWeeklyProductivity(weekly)
+      setEmployeePerformance(performance)
+      setStatusDistribution(distribution)
     } catch (error) {
       console.error('Error loading analytics data:', error)
       setReports([])
       setEmployees([])
-      setGlobalAnalytics(null)
+      setGlobalAnalytics({
+        totalTasks: 0,
+        completedTasks: 0,
+        pendingTasks: 0,
+        activeMembers: 0,
+        averageProductivity: 0
+      })
       setWeeklyProductivity([])
       setEmployeePerformance([])
-      setStatusDistribution(null)
+      setStatusDistribution({ completed: 0, pending: 0 })
     } finally {
       setIsLoading(false)
     }
